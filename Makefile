@@ -118,59 +118,27 @@ install: develop
 	@echo
 	@echo "Installation of ${MODULENAME} finished."
 
-/etc/apt/sources.list.d/nginx.list:
-	@echo
-	@echo "Installation for source for nginx ($(distro):$(codename))."
-	lsb_release -a
-	wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
-ifeq ($(distro),Debian)
-	echo "deb http://nginx.org/packages/debian/ $(codename) nginx" | sudo tee -a /etc/apt/sources.list.d/nginx.list
-endif
-ifeq ($(distro),Ubuntu)
-	echo "deb http://nginx.org/packages/ubuntu/ $(codename) nginx" | sudo tee -a /etc/apt/sources.list.d/nginx.list
-endif
-	sudo apt-get update
-	sudo apt-get remove -y --force-yes nginx nginx-common nginx-full
-	sudo apt-get install -y --force-yes nginx
-
-/etc/nginx/ssl:
-	sudo mkdir /etc/nginx/ssl
-	openssl genrsa -aes256 4096|sudo tee -a /etc/nginx/ssl/default_blank.key
-	sudo openssl rsa -in /etc/nginx/ssl/default_blank.key -out /etc/nginx/ssl/default_blank.key
-	sudo openssl req -new -key /etc/nginx/ssl/default_blank.key -out /etc/nginx/ssl/default_blank.csr
-	sudo openssl x509 -req -days 1460 -in /etc/nginx/ssl/default_blank.csr -signkey /etc/nginx/ssl/default_blank.key -out /etc/nginx/ssl/default_blank.crt
-
-develop: /etc/apt/sources.list.d/nginx.list
+develop:
 	@echo
 	@echo "Installation for developpers of ${MODULENAME} finished."
-	@echo "Install nginx for $(distro):$(codename)."
-#~ ifneq ($(codename),precise)
-	#~ #No websocket for precise
-	#~ sudo cp websockets.conf /etc/nginx/sites-available/
-#~ endif
-	sudo apt-get install -y nginx
-	test -f /etc/nginx/conf.d/git.conf || sudo cp git.conf /etc/nginx/conf.d/git.conf
-	ls -lisa /etc/nginx/conf.d/
-	sudo service nginx restart
+	@echo "Install mysql for $(distro):$(codename)."
+	sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
+	sudo service mysql restart
 	sleep 2
-	#~ cat /var/log/mosquitto/mosquitto.log|grep mosquitto
+	-ls -lisa /var/log/mysql*
 	-netcat -zv 127.0.0.1 1-9999 2>&1|grep succeeded
 	@echo
 	@echo "Dependencies for ${MODULENAME} finished."
 
 travis-deps: deps
-	sudo apt-get -y install libevent-2.0-5 mosquitto wget curl
-	sudo mkdir -p /opt/janitoo/src/janitoo_nginx
+	sudo apt-get -y install wget curl
+	sudo mkdir -p /opt/janitoo/src/janitoo_mysql
 	@echo
 	@echo "Travis dependencies for ${MODULENAME} installed."
 
 tests:
-	netcat -zv 127.0.0.1 1-9999 2>&1|grep succeeded|grep 8085
-	-curl -Is http://127.0.0.1:8085/
-	curl -Is http://127.0.0.1:8085/|head -n 1|grep 200
-	-curl -Is http://127.0.0.1:8085/janitoo_nginx/
-	curl -Is http://127.0.0.1:8085/janitoo_nginx/|head -n 1|grep 200
-	curl -Is http://127.0.0.1:8085/baddir/|head -n 1|grep 404
+	-netcat -zv 127.0.0.1 1-9999 2>&1|grep succeeded
+	netcat -zv 127.0.0.1 1-9999 2>&1|grep succeeded|grep 3306
 	@echo
 	@echo "Tests for ${MODULENAME} finished."
 
