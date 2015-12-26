@@ -122,7 +122,7 @@ develop:
 	@echo
 	@echo "Installation for developpers of ${MODULENAME} finished."
 	@echo "Install mysql for $(distro):$(codename)."
-	sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
+	sudo DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server mysql-client libmysqlclient-dev
 	sudo service mysql restart
 	sleep 2
 	-ls -lisa /var/log/mysql*
