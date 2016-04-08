@@ -83,8 +83,8 @@ deps:
 ifneq ('${DEBIANDEPS}','')
 	sudo apt-get install -y ${DEBIANDEPS}
 endif
-	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password ${MYSQLADMINPASS}"
-	sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password ${MYSQLADMINPASS}"
+	echo "mysql-server mysql-server/root_password password ${MYSQLADMINPASS}" | sudo debconf-set-selections
+	echo "mysql-server mysql-server/root_password_again password ${MYSQLADMINPASS}" | sudo debconf-set-selections
 	@echo
 	@echo "Dependencies for ${MODULENAME} finished."
 
