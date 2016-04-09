@@ -148,8 +148,13 @@ travis-deps: deps
 docker-inst:
 	@echo "Configure Docker image."
 	@echo
+	cp -rf docker/supervisor.conf.d/* /etc/supervisor/janitoo.conf.d/
+	cp -rf docker/supervisor-tests.conf.d/* /etc/supervisor/janitoo-tests.conf.d/
+	/usr/bin/supervisord -c /etc/supervisor/janitoo.conf.d/mysql.conf
+	sleep 15
 	echo "create database janitoo_tests" | mysql -u root -p${MYSQLADMINPASS}
 	echo "create database janitoo_prod" | mysql -u root -p${MYSQLADMINPASS}
+	killall supervisord
 
 docker-tests:
 	@echo
