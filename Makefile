@@ -146,12 +146,15 @@ travis-deps: deps
 	echo "password=${MYSQLADMINPASS}" >>~/.my.cnf
 
 docker-inst:
-	echo "create database janitoo_tests" | mysql -u root -p${MYSQLADMINPASS}
-	echo "create database janitoo_prod" | mysql -u root -p${MYSQLADMINPASS}
 	@echo "Configure Docker image."
 	@echo
+	echo "create database janitoo_tests" | mysql -u root -p${MYSQLADMINPASS}
+	echo "create database janitoo_prod" | mysql -u root -p${MYSQLADMINPASS}
 
-docker-tests: tests
+docker-tests:
+	@echo
+	@echo "Docker tests for ${MODULENAME} start."
+	[ -f tests/test_docker.py ] && $(NOSE) $(NOSEOPTS) $(NOSEDOCKER) tests/test_docker.py
 	@echo
 	@echo "Docker tests for ${MODULENAME} finished."
 
